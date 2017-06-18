@@ -1,0 +1,11 @@
+{
+    "name": "jarvisphp/helper-skill",
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jarvis\\Skill\\Helper\\": "src/"
+        }
+    }
+}
