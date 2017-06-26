@@ -14,25 +14,36 @@ abstract class AbstractSettingsLoader
      * is given, it will try to load the file and override values.
      *
      * @return array
+     *
+     * @throws \RuntimeException if the app_settings.json file does not exist or is not readable
+     * @throws \InvalidArgumentException if the env settings file does not exist or is not readable
      */
     public static function load(string $env = ''): array
     {
-        $filepath = static::settingsPath();
-        if (false === $filepath) {
+        $filename = static::settingsPath();
+        if (false === $filename || !is_readable($filename)) {
             throw new \RuntimeException(
                 'Failed to read app_settings.json, the file does not exist or is not readable.'
             );
         }
 
-        $settings = static::read($filepath);
-        if (false != $env && false !== $envFilepath = static::settingsPath($env)) {
-            $settings = array_merge_assoc_recursive(
-                $settings,
-                static::read($envFilepath)
-            );
+        $settings = static::read($filename);
+        if (false == $env) {
+            return $settings;
         }
 
-        return $settings;
+        $envFilename = static::settingsPath($env);
+        if (false === $envFilename || !is_readable($envFilename)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Failed to load app_settings.%s.json, the file does not exist or is not readable.',
+                $env
+            ));
+        }
+
+        return array_merge_assoc_recursive(
+            $settings,
+            static::read($envFilename)
+        );
     }
 
     /**
@@ -76,6 +87,8 @@ abstract class AbstractSettingsLoader
      * @param  string $path The JSON file path to read
      *
      * @return array the array that contains data of provided JSON file
+     *
+     * @throws \InvalidArgumentException if it failed to decode json
      */
     private static function read(string $path): array
     {
