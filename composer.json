@@ -4,6 +4,7 @@
         "php": ">=7.1.0"
     },
     "autoload": {
+        "files": ["functions/arrays.php"],
         "psr-4": {
             "Jarvis\\Skill\\Helper\\": "src/"
         }
